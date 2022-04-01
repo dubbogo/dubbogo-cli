@@ -1,7 +1,12 @@
+# Dubbo-go version control, we do not update service if there is exsiting service, because
+# service is an app-level resource, helm install service with a different helmName again to add an app
+# version would cause failed.
+{{- $svc := lookup "v1" "Service" .Release.Namespace  .Chart.Name }}
+{{- if not $svc }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "app.fullname" . }}
+  name: {{ include "app.name" . }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
 spec:
@@ -13,4 +18,4 @@ spec:
       name: {{ .Values.service.portName }}
   selector:
     {{- include "app.selectorLabels" . | nindent 4 }}
-
+{{- end }}

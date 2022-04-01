@@ -5,6 +5,11 @@ image:
   pullPolicy: Always
   tag: "1.0.0"
 
+# Dubbo-go-mesh version control labels
+version:
+  labels:
+    dubbogoAppVersion: 0.0.1
+
 container:
   env:
     - name: POD_NAME
@@ -47,7 +52,7 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 securityContext: {}
   # capabilities:
@@ -55,7 +60,7 @@ securityContext: {}
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+# runAsUser: 1000
 
 service:
   type: ClusterIP

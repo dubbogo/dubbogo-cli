@@ -3,7 +3,7 @@ package application
 const (
 	makefile = `IMAGE = $(your_repo)/$(namespace)/$(image_name)
 TAG = 1.0.0
-APPNAME = dubbo-go-app
+HELM_INSTALL_NAME = dubbo-go-app
 
 build-amd64-app:
 	GOOS=linux GOARCH=amd64 go build -o build/app ./cmd
@@ -23,10 +23,10 @@ buildx-publish: proto-gen tidy build-amd64-app
 	make clean
 
 remove:
-	helm uninstall ${APPNAME}
+	helm uninstall ${HELM_INSTALL_NAME}
 
 deploy:
-	helm install ${APPNAME} ./chart/app
+	helm install ${HELM_INSTALL_NAME} ./chart/app
 
 deploy-nacos-env:
 	helm install nacos ./chart/nacos_env

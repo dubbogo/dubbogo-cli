@@ -33,6 +33,11 @@ image:
   pullPolicy: Always
   tag: "1.0.0"
 
+# Dubbo-go-mesh version control labels
+version:
+  labels:
+    dubbogoAppVersion: 0.0.1
+
 container:
   env:
     - name: POD_NAME
@@ -75,7 +80,7 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 securityContext: {}
   # capabilities:
@@ -83,7 +88,7 @@ securityContext: {}
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+# runAsUser: 1000
 
 service:
   type: ClusterIP
@@ -108,16 +113,17 @@ Expand the name of the chart.
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
+Can we fix line 'if .Values.version.labels.dubbogoAppVersion' if user doesn't want to set app version?
 */}}
 {{- define "app.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- if .Values.version.labels.dubbogoAppVersion }}
+{{- $version := .Values.version.labels.dubbogoAppVersion }}
+{{- printf "%s-%s" .Chart.Name $version  | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- printf "%s" .Chart.Name }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -141,12 +147,24 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
+
 {{/*
 Selector labels
 */}}
 {{- define "app.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "app.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+AppVersioned Selector labels
+Used by Deployment and Pod
+To management version control.
+*/}}
+{{- define "app.versionedSelectorLabels" -}}
+{{- include "app.labels" . }}
+{{- with .Values.version.labels.dubbogoAppVersion }}
+dubbogoAppVersion: {{ toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -166,11 +184,12 @@ metadata:
   name: {{ include "app.fullname" . }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
+    {{- toYaml .Values.version.labels | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "app.selectorLabels" . | nindent 6 }}
+      {{- include "app.versionedSelectorLabels" . | nindent 8 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -178,7 +197,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "app.selectorLabels" . | nindent 8 }}
+        {{- include "app.versionedSelectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -221,12 +240,16 @@ spec:
       volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
 `
-	serviceYaml = `apiVersion: v1
+	serviceYaml = `# Dubbo-go version control, we do not update service if there is exsiting service, because
+# service is an app-level resource, helm install service with a different helmName again to add an app
+# version would cause failed.
+{{- $svc := lookup "v1" "Service" .Release.Namespace  .Chart.Name }}
+{{- if not $svc }}
+apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "app.fullname" . }}
+  name: {{ include "app.name" . }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
 spec:
@@ -238,7 +261,7 @@ spec:
       name: {{ .Values.service.portName }}
   selector:
     {{- include "app.selectorLabels" . | nindent 4 }}
-
+{{- end }}
 `
 	serviceAccountYaml = `{{- if .Values.serviceAccount.create -}}
 apiVersion: v1

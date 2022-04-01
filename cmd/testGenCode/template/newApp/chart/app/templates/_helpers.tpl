@@ -9,16 +9,17 @@ Expand the name of the chart.
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
+Can we fix line 'if .Values.version.labels.dubbogoAppVersion' if user doesn't want to set app version?
 */}}
 {{- define "app.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- if .Values.version.labels.dubbogoAppVersion }}
+{{- $version := .Values.version.labels.dubbogoAppVersion }}
+{{- printf "%s-%s" .Chart.Name $version  | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- printf "%s" .Chart.Name }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -42,12 +43,24 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
+
 {{/*
 Selector labels
 */}}
 {{- define "app.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "app.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+AppVersioned Selector labels
+Used by Deployment and Pod
+To management version control.
+*/}}
+{{- define "app.versionedSelectorLabels" -}}
+{{- include "app.labels" . }}
+{{- with .Values.version.labels.dubbogoAppVersion }}
+dubbogoAppVersion: {{ toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*
