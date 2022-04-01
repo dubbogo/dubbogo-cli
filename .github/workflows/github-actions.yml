@@ -56,7 +56,7 @@ jobs:
         imports-formatter -path .
     - name: gofmt
       run: |
-        go fmt ./... && git status && [[ -z `git status -s` ]]
+        go fmt ./...
     - name: Unit Test
       run: |
         make test
