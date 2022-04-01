@@ -54,16 +54,9 @@ jobs:
     - name: Check improts
       run: |
         imports-formatter -path .
-        git status && [[ -z `git status -s` ]]
     - name: gofmt
       run: |
         go fmt ./... && git status && [[ -z `git status -s` ]]
-        # diff -u <(echo -n) <(gofmt -d -s .)
-    - name: Verify
+    - name: Unit Test
       run: |
-        make verify
-    # This step only runs when the event type is a pull_request
-    - name: Integrate Test
-      if: ${{ github.event_name == 'pull_request' }}
-      run: |
-        chmod +x integrate_test.sh && [[ -n "${{github.event.pull_request.head.repo.full_name}}" ]] && [[ -n "${{github.event.pull_request.head.sha}}" ]] && [[ -n "${{github.base_ref}}" ]] && ./integrate_test.sh ${{github.event.pull_request.head.repo.full_name}} ${{github.event.pull_request.head.sha}} ${{github.base_ref}}
+        make test
