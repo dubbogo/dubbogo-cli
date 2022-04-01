@@ -20,12 +20,13 @@ package dubbo
 import (
 	"bufio"
 	"bytes"
-	"github.com/go-errors/errors"
 	"sync"
 )
 
 import (
 	hessian "github.com/apache/dubbo-go-hessian2"
+
+	"github.com/go-errors/errors"
 
 	perrors "github.com/pkg/errors"
 )

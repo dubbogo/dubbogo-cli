@@ -27,7 +27,7 @@ func (InstallFormatter) GetCmdName() string {
 	return "formatter"
 }
 func (InstallFormatter) GetPackage() string {
-	return "github.com/dubbogo/tools/cmd/imports-formatter"
+	return "github.com/dubbogo/tools/cmd/imports-formatter@latest"
 }
 
 type InstallDubbo3Grpc struct {
@@ -37,7 +37,7 @@ func (InstallDubbo3Grpc) GetCmdName() string {
 	return "dubbo3grpc"
 }
 func (InstallDubbo3Grpc) GetPackage() string {
-	return "github.com/dubbogo/tools/cmd/protoc-gen-dubbo3grpc"
+	return "github.com/dubbogo/tools/cmd/protoc-gen-dubbo3grpc@latest"
 }
 
 type Installtriple struct {

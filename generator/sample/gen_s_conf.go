@@ -2,10 +2,6 @@ package sample
 
 const (
 	serverConfigFile = `dubbo:
-  registries:
-    demoZK:
-      protocol: zookeeper
-      address: 127.0.0.1:2181
   protocols:
     triple:
       name: tri
@@ -13,13 +9,13 @@ const (
   provider:
     services:
       GreeterProvider:
-        interface: com.apache.dubbo.sample.basic.IGreeter # must be compatible with grpc or dubbo-java`
+        interface: "" # read from pb`
 )
 
 func init() {
 	fileMap["srvConfGenerator"] = &fileGenerator{
 		path:    "./go-server/conf",
-		file:    "dubbogo.yml",
+		file:    "dubbogo.yaml",
 		context: serverConfigFile,
 	}
 }
