@@ -340,9 +340,9 @@ func (u *User) JavaClassName() string {
 Run server：
 
 ```
-cd server`
-`source builddev.sh`
-`go run .
+cd server
+source builddev.sh
+go run .
 ```
 
 #### 3.4.2 Define the request body (adapted to the serialization protocol)

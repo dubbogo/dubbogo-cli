@@ -311,6 +311,10 @@ image:
   pullPolicy: IfNotPresent
   tag: "2.0.1"
 
+version:
+  labels:
+    dubbogoAppVersion: latest
+
 container:
   env:
     - name: MODE
